@@ -33,17 +33,38 @@ jobs:
 
             mkdir test-reports
             cat split.txt | xargs pytest --junitxml=test-reports/test.xml
-
-            # TODO: need to correct JUnit XML file
+      - run:
+          name: modify JUnit XML report
+          shell: '/usr/bin/env python'
+          command: |
             # Specifically, the testcase XML element's name (test name) is just the test name.
             # pytest --collect-only returns the test names with a fully-qualified name 'path/to/test.py::my_test_name'.
-            # We need to modify the name attribute in testcase XML element:
+            # We thus need to modify the name attribute in testcase XML element:
             # where name = file + "::" + name
+
+            import os
+            import xml.etree.ElementTree as ET
+
+            cur_dir = os.getcwd()
+            input_xml = os.path.join(cur_dir, './test-reports/test.xml')
+            output_xml = os.path.join(cur_dir, './test-reports/formatted.xml')
+
+            tree = ET.parse(input_xml)
+            root = tree.getroot()
+
+            for t in root.findall('testcase'):
+                testname = f"{t.attrib['file']}::{t.attrib['name']}"
+                t.attrib["name"] = testname
+
+            print(f"writing to {output_xml}...")
+            tree.write(output_xml)
+
+            os.remove(input_xml)
 
       - store_test_results:
           path: ./test-reports/
       - store_artifacts: # upload test coverage as artifact
-          path: ./test-reports/test.xml
+          path: ./test-reports/formatted.xml
 
 workflows:
   main:
