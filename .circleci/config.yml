@@ -4,6 +4,7 @@ jobs:
   pytest:
     docker:
       - image: cimg/python:3.8.13
+    parallelism: 3
     resource_class: large
     steps:
       - run:
@@ -23,12 +24,19 @@ jobs:
       - run:
           name: Run tests (specific ones only)
           command: |
-            pytest --collect-only -q | grep '::' > /tmp/tests.txt
-            cat /tmp/tests.txt
+            pytest --collect-only -q | grep '::' > tests.txt
 
-            # run only 1st 3 tests
-            head -n 3 /tmp/tests.txt > only.txt
-            cat only.txt | xargs pytest
+            cat tests.txt | circleci tests split --split-by=timings --timings-type=testname > split.txt
+
+            # verify
+            wc -l split.txt
+
+            mkdir test-reports
+            cat split.txt | xargs pytest --junitxml=test-reports/test.xml
+      - store_test_results:
+          path: ./test-reports/
+      - store_artifacts: # upload test coverage as artifact
+          path: ./test-reports/test.xml
 
 workflows:
   main:
