@@ -28,7 +28,7 @@ jobs:
 
             # run only 1st 3 tests
             head -n 3 /tmp/tests.txt > only.txt
-            cat only.txt | xargs pytest 
+            cat only.txt | xargs pytest
 
 workflows:
   main:
