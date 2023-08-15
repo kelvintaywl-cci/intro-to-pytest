@@ -33,6 +33,13 @@ jobs:
 
             mkdir test-reports
             cat split.txt | xargs pytest --junitxml=test-reports/test.xml
+
+            # TODO: need to correct JUnit XML file
+            # Specifically, the testcase XML element's name (test name) is just the test name.
+            # pytest --collect-only returns the test names with a fully-qualified name 'path/to/test.py::my_test_name'.
+            # We need to modify the name attribute in testcase XML element:
+            # where name = file + "::" + name
+
       - store_test_results:
           path: ./test-reports/
       - store_artifacts: # upload test coverage as artifact
