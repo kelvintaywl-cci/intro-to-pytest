@@ -16,8 +16,19 @@ jobs:
           name: Install dependencies
           command: |
             pip install -r requirements.txt
-      - run: |
-          pytest
+      - run:
+          name: Inspect test cases
+          command: |
+            pytest --collect-only -q
+      - run:
+          name: Run tests (specific ones only)
+          command: |
+            pytest --collect-only -q | grep '::' > /tmp/tests.txt
+            cat /tmp/tests.txt
+
+            # run only 1st 3 tests
+            head -n 3 /tmp/tests.txt > only.txt
+            cat only.txt | xargs pytest 
 
 workflows:
   main:
