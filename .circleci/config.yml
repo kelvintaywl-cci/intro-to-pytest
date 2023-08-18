@@ -52,7 +52,7 @@ jobs:
             tree = ET.parse(input_xml)
             root = tree.getroot()
 
-            for t in root.findall('testcase'):
+            for t in root.iter('testcase'):
                 testname = f"{t.attrib['file']}::{t.attrib['name']}"
                 t.attrib["name"] = testname
 
