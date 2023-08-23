@@ -24,6 +24,7 @@ jobs:
       - run:
           name: Run tests (specific ones only)
           command: |
+            set -e
             pytest --collect-only -q | grep '::' > tests.txt
 
             cat tests.txt | circleci tests split --split-by=timings --timings-type=testname > split.txt
